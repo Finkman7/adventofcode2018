@@ -8,12 +8,13 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class Unit extends Token {
-	public static final int	ATK	= 3;
+	public int				ATK	= 3;
 	public final UnitType	type;
 	public int				hp	= 200;
 
-	public Unit(UnitType type) {
+	public Unit(UnitType type, int ATK) {
 		this.type = type;
+		this.ATK = ATK;
 	}
 
 	@Override

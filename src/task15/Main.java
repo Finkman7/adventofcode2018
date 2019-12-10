@@ -10,15 +10,22 @@ import java.util.Map.Entry;
 import java.util.Optional;
 
 public class Main {
+	static int elfATK = 3;
+
 	public static void main(String[] args) throws IOException {
 		List<String> lines = Files.readAllLines(Paths.get("inputs/input15.txt"));
 
-		Board board = new Board(lines.get(0).length(), lines.size());
-		initBoard(board, lines);
-		play(board);
+		while (true) {
+			elfATK++;
+			Board board = new Board(lines.get(0).length(), lines.size());
+			initBoard(board, lines);
+			play(board);
+		}
+
 	}
 
 	private static void play(Board board) {
+		long initialElfCount = board.count(UnitType.ELF);
 		int counter = 0;
 		while (true) {
 			System.out.println(counter + ":\n" + board);
@@ -39,13 +46,16 @@ public class Main {
 					} catch (Exception e1) {
 						System.out.println("Combat Ended:\n" + board);
 						System.out.println(board.finalScore(counter));
+						if (board.count(UnitType.ELF) == initialElfCount) {
+							System.exit(0);
+						}
 						return;
 					}
 				}
 
 				if (opponent.isPresent()) {
 					Unit opp = opponent.get().getValue();
-					opp.hp -= Unit.ATK;
+					opp.hp -= unit.ATK;
 					if (opp.isDead()) {
 						board.put(opponent.get().getKey(), null);
 					}
@@ -67,9 +77,9 @@ public class Main {
 				if (type == '#') {
 					tok = new Wall();
 				} else if (type == 'G') {
-					tok = new Unit(UnitType.GOBLIN);
+					tok = new Unit(UnitType.GOBLIN, 3);
 				} else if (type == 'E') {
-					tok = new Unit(UnitType.ELF);
+					tok = new Unit(UnitType.ELF, elfATK);
 				}
 
 				board.put(c, tok);

@@ -79,8 +79,8 @@ public class Board extends TreeMap<Coordinate, Token> {
 
 			if (c.x == this.WIDTH - 1) {
 				sb.append(" ");
-				sb.append(this.getUnitEntries().stream().filter(e -> e.getKey().y == c.y)
-						.map(e -> e.getValue().toString()).collect(Collectors.joining(", ")));
+				// sb.append(this.getUnitEntries().stream().filter(e -> e.getKey().y == c.y)
+				// .map(e -> e.getValue().toString()).collect(Collectors.joining(", ")));
 				sb.append("\n");
 			}
 		});
@@ -130,5 +130,9 @@ public class Board extends TreeMap<Coordinate, Token> {
 
 	public int finalScore(int counter) {
 		return counter * getUnitEntries().stream().mapToInt(e -> ((Unit) e.getValue()).hp).sum();
+	}
+
+	public long count(UnitType type) {
+		return this.getUnitEntries().stream().filter(c -> ((Unit) c.getValue()).type.equals(type)).count();
 	}
 }
