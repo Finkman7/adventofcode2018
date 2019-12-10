@@ -10,7 +10,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 
 public class Main {
-
 	public static void main(String[] args) throws IOException {
 		List<String> lines = Files.readAllLines(Paths.get("inputs/input15.txt"));
 
@@ -22,23 +21,24 @@ public class Main {
 	private static void play(Board board) {
 		int counter = 0;
 		while (true) {
+			System.out.println(counter + ":\n" + board);
 			for (Entry<Coordinate, Token> e : board.getUnitEntries()) {
 				if (e.getValue() == null) {
-					continue; // got killed
+					continue; // unit got killed this turn
 				}
 
 				Unit unit = (Unit) e.getValue();
-				Coordinate c = e.getKey();
+				Coordinate unitCoords = e.getKey();
 
-				Optional<SimpleEntry<Coordinate, Unit>> opponent = board.getNextAdjacentOpponentOf(unit, c);
+				Optional<SimpleEntry<Coordinate, Unit>> opponent = board.getNextAdjacentOpponentOf(unit, unitCoords);
 
 				if (!opponent.isPresent()) {
 					try {
-						c = unit.move(board, e.getKey());
-						opponent = board.getNextAdjacentOpponentOf(unit, c);
+						unitCoords = unit.move(board, unitCoords);
+						opponent = board.getNextAdjacentOpponentOf(unit, unitCoords);
 					} catch (Exception e1) {
-						System.out.println(board);
-						System.out.println(counter + ": " + board.finalScore(counter));
+						System.out.println("Combat Ended:\n" + board);
+						System.out.println(board.finalScore(counter));
 						return;
 					}
 				}
@@ -53,7 +53,6 @@ public class Main {
 			}
 
 			counter++;
-			System.out.println(counter + ":\n" + board);
 		}
 	}
 

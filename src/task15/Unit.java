@@ -61,4 +61,9 @@ public class Unit extends Token {
 	public boolean isDead() {
 		return hp <= 0;
 	}
+
+	@Override
+	public String toShortString() {
+		return this.type.toString();
+	}
 }

@@ -4,7 +4,12 @@ public class Wall extends Token {
 
 	@Override
 	public String toString() {
-		return "#######";
+		return "#";
+	}
+
+	@Override
+	public String toShortString() {
+		return toString();
 	}
 
 }

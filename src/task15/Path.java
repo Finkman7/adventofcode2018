@@ -15,4 +15,9 @@ public class Path extends ArrayList<Coordinate> {
 	public Coordinate getTail() {
 		return this.get(this.size() - 1);
 	}
+
+	@Override
+	public Path clone() {
+		return new Path(this);
+	}
 }

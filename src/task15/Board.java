@@ -72,12 +72,15 @@ public class Board extends TreeMap<Coordinate, Token> {
 
 		this.keySet().stream().forEach(c -> {
 			if (isOccupied(c)) {
-				sb.append(this.get(c));
+				sb.append(this.get(c).toShortString());
 			} else {
-				sb.append("......");
+				sb.append(".");
 			}
 
 			if (c.x == this.WIDTH - 1) {
+				sb.append(" ");
+				sb.append(this.getUnitEntries().stream().filter(e -> e.getKey().y == c.y)
+						.map(e -> e.getValue().toString()).collect(Collectors.joining(", ")));
 				sb.append("\n");
 			}
 		});
@@ -85,37 +88,29 @@ public class Board extends TreeMap<Coordinate, Token> {
 		return sb.toString();
 	}
 
-	public Path getShortestPath(Coordinate c, Coordinate c_Target) {
-		Comparator<Path> comparator = byTotalPlusHeuristicDistance(c_Target);
+	public Path getShortestPath(Coordinate startCoords, Coordinate targetCoords) {
+		Comparator<Path> comparator = byTotalPlusHeuristicDistance(targetCoords).thenComparing(byFirstStep());
 		PriorityQueue<Path> potentialPaths = new PriorityQueue<>(comparator);
 		Path initial = new Path();
-		initial.add(c);
+		initial.add(startCoords);
 		potentialPaths.add(initial);
 
 		Path shortestPath = null;
-		Map<Coordinate, Path> bestPaths = new HashMap<>();
+		Map<Coordinate, Path> bestPartialPaths = new HashMap<>();
 		while (!potentialPaths.isEmpty()) {
-			Path best = potentialPaths.poll();
+			Path p = potentialPaths.poll();
 
-			if (shortestPath != null) {
-				if (comparator.compare(shortestPath, best) < 0) {
-					break;
-				} else if (CoordComparator.instance.compare(shortestPath.get(1), best.get(1)) > 0) {
-					shortestPath = best;
-				}
+			if (p.getTail().equals(targetCoords)) {
+				return p;
 			} else {
-				if (best.getTail().equals(c_Target)) {
-					shortestPath = best;
-				} else {
-					for (Coordinate c2 : getFreeAdjacentCoordinatesOf(best.getTail())) {
-						Path p = new Path(best);
-						p.add(c2);
+				for (Coordinate adj_Coords : getFreeAdjacentCoordinatesOf(p.getTail())) {
+					Path extension = p.clone();
+					extension.add(adj_Coords);
 
-						if (!bestPaths.containsKey(c2) || bestPaths.get(c2).size() > p.size()
-								|| CoordComparator.instance.compare(bestPaths.get(c2).get(1), p.get(1)) > 0) {
-							potentialPaths.add(p);
-							bestPaths.put(c2, p);
-						}
+					if (!bestPartialPaths.containsKey(adj_Coords)
+							|| comparator.compare(bestPartialPaths.get(adj_Coords), extension) > 0) {
+						potentialPaths.add(extension);
+						bestPartialPaths.put(adj_Coords, extension);
 					}
 				}
 			}
@@ -126,6 +121,11 @@ public class Board extends TreeMap<Coordinate, Token> {
 
 	private Comparator<Path> byTotalPlusHeuristicDistance(Coordinate target) {
 		return Comparator.comparingInt(p -> p.size() + p.getTail().manhattanDistanceTo(target));
+
+	}
+
+	private Comparator<Path> byFirstStep() {
+		return (p1, p2) -> CoordComparator.instance.compare(p1.get(1), p2.get(1));
 	}
 
 	public int finalScore(int counter) {
